@@ -1,0 +1,33 @@
+---
+# tasks file for epel
+- name: Ensure that EPEL is installed
+  when: (ansible_distribution_major_version >= 6)
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm state=present
+
+- name: Ensure that EPEL is installed (RHEL 5)
+  when: (ansible_distribution_major_version == 5)
+  shell: rpm -q epel-release || (wget -q -c https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm -P /tmp && rpm -ivh /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm && rm -f /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm)
+
+- name: Ensure that EPEL is enabled (RHE 7/6)
+  when:
+    - epel_disable == false
+    - ansible_distribution_major_version >= 6
+  shell: yum-config-manager --enable epel
+
+- name: Ensure that EPEL is enabled (RHEL 5)
+  when:
+    - epel_disable == false
+    - ansible_distribution_major_version == 5
+  shell: sed -i -e 's/enabled=0/enabled=1/' /etc/yum.repos.d/epel.repo
+
+- name: Ensure that EPEL is disabled (RHE 7/6)
+  when:
+    - epel_disable == true
+    - ansible_distribution_major_version >= 6
+  shell: yum-config-manager --disable epel
+
+- name: Ensure that EPEL is disabled (RHEL 5)
+  when:
+    - epel_disable == true
+    - ansible_distribution_major_version == 5
+  shell: sed -i -e 's/enabled=1/enabled=0/' /etc/yum.repos.d/epel.repo
