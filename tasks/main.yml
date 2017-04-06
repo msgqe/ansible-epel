@@ -20,6 +20,12 @@
     - ansible_distribution_major_version == 5
   shell: sed -i -e 's/enabled=0/enabled=1/' /etc/yum.repos.d/epel.repo
 
+- name: Ensure that yum-config-manager is installed (RHEL 7/6)
+  when:
+    - epel_disable == true
+    - ansible_distribution_major_version >= 6
+  yum: name=yum-utils state=present
+
 - name: Ensure that EPEL is disabled (RHE 7/6)
   when:
     - epel_disable == true
