@@ -12,19 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-# tasks file for epel
-- name: Install EPEL
-  include: install_epel.yml
-  when: ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
-
-- name: Enable EPEL
-  include: enable_epel.yml
+- name: Ensure that EPEL is disabled (RHE 7/6)
   when:
-    - ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
-    - epel_disable is defined and epel_disable == false
+    - epel_disable == true
+    - ansible_distribution_major_version|int >= 6
+  shell: yum-config-manager --disable epel
 
-- name: Disable EPEL
-  include: disable_epel.yml
+- name: Ensure that EPEL is disabled (RHEL 5)
   when:
-    - ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
-    - epel_disable is defined and epel_disable == true
+    - epel_disable == true
+    - ansible_distribution_major_version|int == 5
+  shell: sed -i -e 's/enabled=1/enabled=0/' /etc/yum.repos.d/epel.repo
