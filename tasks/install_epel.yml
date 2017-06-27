@@ -13,13 +13,21 @@
 # limitations under the License.
 ---
 # tasks file for epel
-- name: Ensure that EPEL is installed
-  when: (ansible_distribution_major_version|int >= 6)
+- name: Check EPEL repo file presence
+  stat: path="/etc/yum.repos.d/epel.repo"
+  register: epel_repo_path_st
+
+- name: Ensure that EPEL is installed (RHEL >= 6)
+  when:
+    - (ansible_distribution_major_version|int >= 6)
+    - epel_repo_path_st.stat.exists is not defined or epel_repo_path_st.stat.exists == false
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm state=present
 
 - name: Ensure that EPEL is installed (RHEL 5)
-  when: (ansible_distribution_major_version|int == 5)
-  shell: rpm -q epel-release || (wget -q -c https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm -P /tmp && rpm -ivh /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm && rm -f /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm)
+  when:
+    - (ansible_distribution_major_version|int == 5)
+    - epel_repo_path_st.stat.exists is not defined or epel_repo_path_st.stat.exists == false
+  shell: wget -q -c https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm -P /tmp && rpm -ivh /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm && rm -f /tmp/epel-release-latest-{{ ansible_distribution_major_version}}.noarch.rpm
 
 - name: Ensure that yum-config-manager is installed (RHEL 7/6)
   when:
