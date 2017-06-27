@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 TEST_INVENTORY?=tests/inventory
+ANSIBLE_OPTS?=
 
 clean:
 	rm ansible.cfg
 
 test:
 	printf '[defaults]\nroles_path=../' >ansible.cfg
-	ansible-playbook tests/test.yml -i $(TEST_INVENTORY)
+	ansible-playbook $(ANSIBLE_OPTS) tests/test.yml -i $(TEST_INVENTORY)
 	rm ansible.cfg
