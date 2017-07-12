@@ -30,7 +30,7 @@ Including an example of how to use your role (for instance, with variables passe
 		vars:
 			epel_disable: false
 		roles:
-			- epel
+			- ansible-epel
 
 
 Testing

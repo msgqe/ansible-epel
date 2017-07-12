@@ -17,4 +17,4 @@
   vars:
     epel_enable: true
   roles:
-    - epel
+    - ansible-epel
